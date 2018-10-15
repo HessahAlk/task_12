@@ -3,6 +3,7 @@ from .models import Restaurant, Item
 from .forms import RestaurantForm, ItemForm, SignupForm, SigninForm
 from django.contrib.auth import login, authenticate, logout
 from django.db.models import Q
+import requests
 
 def no_access(request):
 	return render(request, 'no_access.html')
@@ -47,6 +48,8 @@ def signout(request):
 	return redirect("signin")
 
 def restaurant_list(request):
+	if request.user.is_anonymous:
+		return redirect('signin')
 	restaurants = Restaurant.objects.all()
 	query = request.GET.get("q")
 	if query:
@@ -126,3 +129,14 @@ def restaurant_delete(request, restaurant_id):
 		return redirect('no-access')
 	restaurant_obj.delete()
 	return redirect('restaurant-list')
+
+def test_api(request):
+	url = "https://api.github.com/repos/joinCODED/task_12/events"
+
+	response = requests.get(url)
+
+	context = {
+		"response": response.json(),
+	}
+
+	return render(request, 'api.html', context)
